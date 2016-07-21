@@ -1,7 +1,7 @@
 import subprocess
 import timeit
 import shlex
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 NREPEATS = 5  #number of times to call Dijkstra in order to measure average time
