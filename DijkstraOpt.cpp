@@ -193,11 +193,7 @@ PQueue<K, V>::clear()
 }
 
 
-
-PQueue <size_t, task_t *> Q;
 vertex_t *graph;
-
-
 
 double
 timediff_in_s(const struct timespec &start,
@@ -308,13 +304,18 @@ generate_graph(const size_t n,
     return data;
 }
 
-void FindDist()
+void FindDist(PQueue<uint32_t, task_t *> *Q)
 {
+    struct timespec start, end;
+    
+    Q->insert(0, new task_t(&graph[source], 0));
    
-   while (1) {
+    clock_gettime(CLOCK_MONOTONIC, &start);
+   
+    while (1) {
         
         task_t *task;
-        if (!Q.delete_min(task)) break;
+        if (!Q->delete_min(task)) break;
 
         const vertex_t *v = task->v;
         const size_t v_dist = v->distance;
@@ -335,12 +336,19 @@ void FindDist()
                 continue;
             }
 
+           	
            	w->distance = new_dist;
-            Q.insert(new_dist, new task_t(w, new_dist));
+            Q->insert(new_dist, new task_t(w, new_dist));
         		
 		}
 		delete task;
 	}
+	
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	
+	const double elapsed = timediff_in_s(start, end);
+    
+    fprintf(stdout, "%f\n", elapsed);
 }
 
 
@@ -354,21 +362,11 @@ int main()
     if (p <= 0) graph = generate_graph(n, seed);
     else graph = generate_graph(n, seed, p);
 
-    struct timespec start, end;
+   	PQueue<uint32_t, task_t *> pq;
     
-    Q.clear();
+    pq.clear();
     
-    clock_gettime(CLOCK_MONOTONIC, &start);
+	FindDist(&pq);
 
-    Q.insert(0, new task_t(&graph[source], 0));
-  	
-  	FindDist();
-
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    
-    const double elapsed = timediff_in_s(start, end);
-    
-    fprintf(stdout, "%f\n", elapsed);
-  	
-  	return 0;
+	return 0;
 }

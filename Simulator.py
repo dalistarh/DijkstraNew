@@ -4,7 +4,7 @@ import shlex
 #import matplotlib.pyplot as plt
 
 
-NREPEATS = 5  #number of times to call Dijkstra in order to measure average time
+NREPEATS = 20  #number of times to call Dijkstra in order to measure average time
 seed = 0
 prob = 0
 
@@ -25,10 +25,17 @@ subprocess.call(args)
 cmd = "./DijkstraOpt.out"
 args = shlex.split(cmd)
 
-p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+timeDS = -1.0
 
-timeDS = p.communicate(str(seed) + ' ' + str(prob))[0];
-timeDS = timeDS[:-2]
+for i in range (0, NREPEATS):
+
+	p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+	stimeDS = p.communicate(str(seed) + ' ' + str(prob))[0];
+	stimeDS = stimeDS[:-2]
+	if (timeDS < 0.0 or timeDS > float(stimeDS)): timeDS = float(stimeDS)
+	
+
 
 def RunDijkstra(version, p):
 	
@@ -72,7 +79,7 @@ for i in range(0, 4):
 		j *= 2
 		k += 1
 		
-f.write('1 '+timeDS+'\n')
+f.write('1 '+str(timeDS)+'\n')
 
 
 
