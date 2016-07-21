@@ -4,16 +4,16 @@ import shlex
 #import matplotlib.pyplot as plt
 
 
-NREPEATS = 20  #number of times to call Dijkstra in order to measure average time
+NREPEATS = 10  #number of times to call Dijkstra in order to measure average time
 seed = 0
 prob = 0
 
 #build kpqueue
 
-cmd = "make -C kpqueue"
-args = shlex.split(cmd)
+#cmd = "make -C kpqueue"
+#args = shlex.split(cmd)
 
-subprocess.call(args)
+#subprocess.call(args)
 
 #complie Sequential Dijkstra
 cmd = "g++ DijkstraOpt.cpp -o DijkstraOpt.out -std=c++11"
@@ -75,11 +75,11 @@ for i in range(0, 4):
 	j = 1 
 	k = 0
 	while j <= 32:
-		f.write(str(j) + ' ' + str(time[k]) + '\n')
+		f.write(QueueVersions[i] + ' ' + str(j) + ' ' + str(time[k]) + '\n')
 		j *= 2
 		k += 1
 		
-f.write('1 '+str(timeDS)+'\n')
+f.write('Sequential 1 '+str(timeDS)+'\n')
 
 
 
