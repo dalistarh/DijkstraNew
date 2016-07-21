@@ -12,8 +12,6 @@
 #include <time.h>
 #include <cstring>
 
-using namespace std;
-
 #define INF numeric_limits<size_t>::max()
 #define MAXN 100000
 
@@ -276,10 +274,9 @@ generate_graph(const size_t n,
      
     std::ifstream inf;
 	inf.open("facebook_combined.txt");
-    
-    const size_t m = 88234; //number of edges
-    
-	std::vector<edge_t> *edges = new std::vector<edge_t>[n];
+	
+   
+    std::vector<edge_t> *edges = new std::vector<edge_t>[n];
     for (size_t i = 0; i < m; i++) {
     	edge_t e;
         size_t u, v;
@@ -314,7 +311,8 @@ generate_graph(const size_t n,
 void FindDist()
 {
    
-    while (1) {
+   while (1) {
+        
         task_t *task;
         if (!Q.delete_min(task)) break;
 
@@ -337,6 +335,7 @@ void FindDist()
                 continue;
             }
 
+           	w->distance = new_dist;
             Q.insert(new_dist, new task_t(w, new_dist));
         		
 		}
@@ -349,25 +348,19 @@ void FindDist()
 int main()
 {
 	std::cin >> seed >> p;
-    //seed = 0;
-    //p = 0;
-    //set source to 0
-	source = 0;
+   
+   	source = 0;
     
     if (p <= 0) graph = generate_graph(n, seed);
     else graph = generate_graph(n, seed, p);
 
-    /* Our initial node is graph[0]. */
-
-
-    
-  	struct timespec start, end;
+    struct timespec start, end;
     
     Q.clear();
     
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    Q.insert(0, new task_t(&graph[0], 0));
+    Q.insert(0, new task_t(&graph[source], 0));
   	
   	FindDist();
 
@@ -375,8 +368,7 @@ int main()
     
     const double elapsed = timediff_in_s(start, end);
     
-    for (size_t i = 0; i < n; i++) std::cout << graph[i].distance << std::endl;
-    //fprintf(stdout, "%f\n", elapsed);
+    fprintf(stdout, "%f\n", elapsed);
   	
   	return 0;
 }

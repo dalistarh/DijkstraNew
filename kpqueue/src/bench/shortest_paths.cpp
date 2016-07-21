@@ -324,10 +324,10 @@ bench(T *pq,
     verify_graph(graph, settings.num_nodes);
 
     const double elapsed = timediff_in_s(start, end);
-    //fprintf(stdout, "%f\n", elapsed);
+    
+    fprintf(stdout, "%f\n", elapsed);
 
-    for (size_t i = 0; i < settings.num_nodes; i++) std::cout << graph[i].distance << std::endl;
-    delete_graph(graph, settings.num_nodes);
+	delete_graph(graph, settings.num_nodes);
     return ret;
 }
 
