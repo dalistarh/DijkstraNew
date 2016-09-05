@@ -801,7 +801,7 @@ main(int argc,
         kpq::multi_lsm<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
         ret = bench(&pq, settings);
     } else if (settings.type == PQ_MULTIQ) {
-        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
+        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads, 0.0, settings.seed); //just add dummy values
         ret = bench(&pq, settings);
 #ifndef ENABLE_QUALITY
     } else if (settings.type == PQ_SEQUENCE) {

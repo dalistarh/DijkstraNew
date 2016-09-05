@@ -6,7 +6,8 @@ import shlex
 
 NREPEATS = 10  #number of times to call Dijkstra in order to measure average time
 seed = 0
-prob = 0
+prob = 0 #probability of having an edge, if 0 use social networsk graph
+beta = 0.5 #probability of using two random queues
 
 #build kpqueue
 
@@ -14,28 +15,6 @@ prob = 0
 #args = shlex.split(cmd)
 
 #subprocess.call(args)
-
-#complie Sequential Dijkstra
-cmd = "g++ DijkstraOpt.cpp -o DijkstraOpt.out -std=c++11"
-args = shlex.split(cmd)
-
-subprocess.call(args)
-
-#run Sequential Dijkstra using popen
-cmd = "./DijkstraOpt.out"
-args = shlex.split(cmd)
-
-timeDS = -1.0
-
-for i in range (0, NREPEATS):
-
-	p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-
-	stimeDS = p.communicate(str(seed) + ' ' + str(prob))[0];
-	stimeDS = stimeDS[:-2]
-	if (timeDS < 0.0 or timeDS > float(stimeDS)): timeDS = float(stimeDS)
-	
-
 
 def RunDijkstra(version, p):
 	
@@ -45,7 +24,7 @@ def RunDijkstra(version, p):
 	while nthreads <= 32:
 		#run concurrent Dijkstra with nthreads #threads
 	
-		cmd = "./kpqueue/build/src/bench/shortest_paths -n " +str(nthreads)+" -s "+str(seed)+" -p "+str(p)+" "+version;
+		cmd = "./kpqueue/build/src/bench/shortest_paths -n " +str(nthreads)+" -s "+str(seed)+" -p "+str(p)+" "+" -b "+str(beta)+version;
 		args = shlex.split(cmd)
 
 		t = 0.0
@@ -79,7 +58,9 @@ for i in range(0, 4):
 		j *= 2
 		k += 1
 		
-f.write('Sequential 1 '+str(timeDS)+'\n')
+time = RunDijkstra("sequential", prob)
+
+f.write('Sequential 1 '+str(time)+'\n')
 
 
 

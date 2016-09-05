@@ -31,6 +31,7 @@
 #include "util.h"
 #include <fstream>
 #include <iostream>
+#include "pqs/seqpq.h"
 
 constexpr int DEFAULT_NNODES     = 4039;
 constexpr int DEFAULT_NTHREADS   = 1;
@@ -42,6 +43,7 @@ constexpr int DEFAULT_SEED       = 0;
 #define PQ_GLOBALLOCK "globallock"
 #define PQ_KLSM       "klsm"
 #define PQ_MULTIQ     "multiq"
+#define PQ_SEQPQ      "sequential"
 
 static hwloc_wrapper hwloc; /**< Thread pinning functionality. */
 
@@ -158,7 +160,7 @@ generate_graph(const size_t n,
 
      
     std::ifstream inf;
-	inf.open("facebook_combined.txt");
+    inf.open("facebook_combined.txt");
     
     const size_t m = 88234; //number of edges
     
@@ -339,7 +341,9 @@ main(int argc,
     struct settings s = { DEFAULT_NNODES, DEFAULT_NTHREADS, DEFAULT_EDGE_P, DEFAULT_SEED, ""};
 
     int opt;
-    while ((opt = getopt(argc, argv, "m:n:p:s:")) != -1) {
+    double beta = 0.0; //beta is 0.0 by default
+
+    while ((opt = getopt(argc, argv, "m:n:p:s:b:")) != -1) {
         switch (opt) {
         case 'm':
             errno = 0;
@@ -369,6 +373,13 @@ main(int argc,
                 usage();
             }
             break;
+	case 'b':
+	    errno = 0;
+            beta = strtol(optarg, NULL, 0);
+            if (errno != 0) {
+                usage();
+            } 		
+	    break;
         default:
             usage();
         }
@@ -384,6 +395,10 @@ main(int argc,
 
     if (s.edge_probability < 0.0 || s.edge_probability > 1.0) {
         usage();
+    }
+
+    if (beta < 0.0 || beta > 0.5) {
+    	usage();
     }
 
     if (optind != argc - 1) {
@@ -402,8 +417,12 @@ main(int argc,
         kpqbench::GlobalLock<uint32_t, task_t *> pq;
         ret = bench(&pq, s);
     } else if (s.type == PQ_MULTIQ) {
-        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads);
+        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads, beta, s.seed);
         ret = bench(&pq, s);
+    } else if (s.type == PQ_SEQPQ) {
+	s.num_threads = 1; //sequential always has 1 thread    	
+	kpqbench::SeqPQ<uint32_t, task_t *> pq;
+	ret = bench(&pq, s);
     } else {
         usage();
     }

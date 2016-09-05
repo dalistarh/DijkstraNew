@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <queue>
+#include <random>
 
 #include "util/thread_local_ptr.h"
 #include "util/xorshf96.h"
@@ -80,7 +81,7 @@ private:
     } __attribute__((aligned(64)));
 
 public:
-    multiq(const size_t num_threads);
+    multiq(const size_t num_threads, const double beta, size_t seed);
     virtual ~multiq();
 
     void insert(const K &key, const V &value);
@@ -99,6 +100,10 @@ private:
 
 private:
     const size_t m_num_threads;
+    
+    const double beta;
+    std::mt19937 rng;	
+
 
     local_queue *m_queues;
     local_lock *m_locks;

@@ -18,11 +18,13 @@
  */
 
 static thread_local kpq::xorshf96 local_rng;
+static std::uniform_real_distribution<float> rnd_f(0.0, 1.0);
 
 template <class K, class V, int C>
-multiq<K, V, C>::multiq(const size_t num_threads) :
-    m_num_threads(num_threads)
+multiq<K, V, C>::multiq(const size_t num_threads, const double beta, const size_t seed) :
+    m_num_threads(num_threads), beta(beta)
 {
+    rng.seed(seed);
     m_queues = new local_queue[num_queues()]();
     m_locks = new local_lock[num_queues()]();
 }
@@ -44,15 +46,22 @@ multiq<K, V, C>::delete_min(V &value)
     size_t i, j;
 
     while (true) {
-        do {
-            i = local_rng() % nqueues;
-            j = local_rng() % nqueues;
+	if (rnd_f(rng) < beta) {   //try to choose two queues      
+	    do {
+                i = local_rng() % nqueues;
+                j = local_rng() % nqueues;
 
-            if (m_queues[i].m_top > m_queues[j].m_top) {
-                std::swap(i, j);
-            }
-        } while (!lock(i));
-
+            	if (m_queues[i].m_top > m_queues[j].m_top) {
+                    std::swap(i, j);
+            	}
+            } while (!lock(i));
+        }
+	else {  //pick just one random queue
+	    do {
+                i = local_rng() % nqueues;
+               
+            } while (!lock(i));	
+	}
         auto &pq = m_queues[i].m_pq;
         const auto item = pq.top();
 
