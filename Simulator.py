@@ -24,7 +24,7 @@ def RunDijkstra(version, p):
 	while nthreads <= 32:
 		#run concurrent Dijkstra with nthreads #threads
 	
-		cmd = "./kpqueue/build/src/bench/shortest_paths -n " +str(nthreads)+" -s "+str(seed)+" -p "+str(p)+" "+" -b "+str(beta)+version;
+		cmd = "./kpqueue/build/src/bench/shortest_paths -n " +str(nthreads)+" -s "+str(seed)+" -p "+str(p)+" "+" -b "+str(beta)+" "+version;
 		args = shlex.split(cmd)
 
 		t = 0.0
