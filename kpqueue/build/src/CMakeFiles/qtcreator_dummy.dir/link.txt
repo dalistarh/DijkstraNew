@@ -1,2 +1,0 @@
-gcc-ar qc libqtcreator_dummy.a  CMakeFiles/qtcreator_dummy.dir/util/thread_local_ptr.cpp.o
-gcc-ranlib libqtcreator_dummy.a

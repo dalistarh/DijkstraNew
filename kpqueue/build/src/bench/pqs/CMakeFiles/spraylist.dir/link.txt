@@ -1,2 +1,0 @@
-gcc-ar qc libspraylist.a  CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/fraser.c.o CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/intset.c.o CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/linden_common.c.o CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/linden.c.o CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/measurements.c.o CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/pqueue.c.o CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/skiplist.c.o CMakeFiles/spraylist.dir/__/__/__/lib/spraylist/ssalloc.c.o CMakeFiles/spraylist.dir/spraylist.cpp.o
-gcc-ranlib libspraylist.a

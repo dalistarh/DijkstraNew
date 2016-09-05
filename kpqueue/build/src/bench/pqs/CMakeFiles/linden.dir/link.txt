@@ -1,2 +1,0 @@
-gcc-ar qc liblinden.a  CMakeFiles/linden.dir/__/__/__/lib/linden/common.c.o CMakeFiles/linden.dir/__/__/__/lib/linden/prioq.c.o CMakeFiles/linden.dir/__/__/__/lib/linden/gc/gc.c.o CMakeFiles/linden.dir/__/__/__/lib/linden/gc/ptst.c.o CMakeFiles/linden.dir/linden.cpp.o
-gcc-ranlib liblinden.a
