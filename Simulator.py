@@ -7,14 +7,14 @@ import shlex
 NREPEATS = 10  #number of times to call Dijkstra in order to measure average time
 seed = 0
 prob = 0 #probability of having an edge, if 0 use social networsk graph
-beta = 0.5 #probability of using two random queues
+beta = 0 #probability of using two random queues
 
 #build kpqueue
 
-#cmd = "make -C kpqueue"
-#args = shlex.split(cmd)
+cmd = "make -C kpqueue"
+args = shlex.split(cmd)
 
-#subprocess.call(args)
+subprocess.call(args)
 
 def RunDijkstra(version, p):
 	
@@ -24,7 +24,7 @@ def RunDijkstra(version, p):
 	while nthreads <= 32:
 		#run concurrent Dijkstra with nthreads #threads
 	
-		cmd = "./kpqueue/build/src/bench/shortest_paths -n " +str(nthreads)+" -s "+str(seed)+" -p "+str(p)+" "+" -b "+str(beta)+" "+version;
+		cmd = "./kpqueue/build/src/bench/shortest_paths -m 4039 -n " +str(nthreads)+" -p "+str(p)+" -s "+str(seed)+" -b "+str(beta)+" "+version;
 		args = shlex.split(cmd)
 
 		t = 0.0
@@ -41,7 +41,7 @@ def RunDijkstra(version, p):
 			
 		time.append(t / NREPEATS)
 		nthreads *= 2
-		
+		if version == "sequential": break
 	return time
 		
 
@@ -59,8 +59,7 @@ for i in range(0, 4):
 		k += 1
 		
 time = RunDijkstra("sequential", prob)
-
-f.write('Sequential 1 '+str(time)+'\n')
+f.write('Sequential 1 '+str(time[0])+'\n')
 
 
 

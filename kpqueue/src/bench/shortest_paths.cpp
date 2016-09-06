@@ -88,7 +88,7 @@ struct task_t {
 static void
 usage()
 {
-    fprintf(stderr,
+      fprintf(stderr,
             "USAGE: shortest_paths [-m num_nodes] [-n num_threads] [-p edge_probability]\n"
             "                      [-s seed] pq\n"
             "       -m: The number of nodes generated (default = %d)\n"
@@ -356,32 +356,32 @@ main(int argc,
             errno = 0;
             s.num_threads = strtol(optarg, NULL, 0);
             if (errno != 0) {
-                usage();
+               usage();
             }
             break;
         case 'p':
             errno = 0;
             s.edge_probability = strtod(optarg, NULL);
             if (errno != 0) {
-                usage();
+	       usage();
             }
             break;
         case 's':
             errno = 0;
             s.seed = strtol(optarg, NULL, 0);
             if (errno != 0) {
-                usage();
+	        usage();
             }
             break;
 	case 'b':
 	    errno = 0;
-            beta = strtol(optarg, NULL, 0);
+            beta = strtod(optarg, NULL);
             if (errno != 0) {
-                usage();
+               usage();
             } 		
 	    break;
         default:
-            usage();
+	    usage();
         }
     }
 
@@ -398,7 +398,7 @@ main(int argc,
     }
 
     if (beta < 0.0 || beta > 0.5) {
-    	usage();
+         usage();
     }
 
     if (optind != argc - 1) {
