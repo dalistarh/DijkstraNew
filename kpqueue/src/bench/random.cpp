@@ -71,7 +71,7 @@
 #define VAL_TYPE      uint32_t
 #endif
 
-double beta = 0.0; //parameter to pick one queue
+int beta;
 
 /**
  * Uniform: Each thread performs 50% inserts, 50% deletes.
@@ -99,7 +99,7 @@ enum {
 };
 
 constexpr int DEFAULT_SEED       = 0;
-constexpr int DEFAULT_SIZE       = 10000000;  // Matches benchmarks from klsm paper.
+constexpr int DEFAULT_SIZE       = 1000000;  // Matches benchmarks from klsm paper.
 constexpr int DEFAULT_NTHREADS   = 1;
 constexpr int DEFAULT_RELAXATION = 256;
 #ifdef ENABLE_QUALITY
@@ -362,7 +362,7 @@ bench_thread(PriorityQueue *pq,
 #ifdef HAVE_VALGRIND
     CALLGRIND_ZERO_STATS;
 #endif
-
+    int counter = 0;
     KEY_TYPE k;
     VAL_TYPE v;
     while (!end_barrier.load(std::memory_order_relaxed)) {
@@ -377,7 +377,11 @@ bench_thread(PriorityQueue *pq,
 #endif
             kpq::COUNTERS.inserts++;
         } else {
-            if (pq->delete_min(v, thread_id)) {
+            counter++;
+            bool ww;            
+            if (counter % beta == 0) ww = pq->delete_min2(v, thread_id); else w = pq->delete_min(v);
+            
+            if (ww) {
 #ifdef ENABLE_QUALITY
                 deletions->emplace_back(packed_item_id { v.thread_id
                                                        , v.element_id
@@ -756,13 +760,8 @@ main(int argc,
             settings.workload = safe_parse_int_arg(optarg);
             break;
         case 'b':
-	        errno = 0;
-            beta = strtod(optarg, NULL);
-            if (errno != 0) {
-               usage();
-            } 		
-	        break;
-            
+            beta = safe_parse_int_arg(optarg);
+            break;
         default:
             usage();
         }
@@ -811,7 +810,7 @@ main(int argc,
         kpq::multi_lsm<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
         ret = bench(&pq, settings);
     } else if (settings.type == PQ_MULTIQ) {
-        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads, beta, settings.seed); 
+        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
         ret = bench(&pq, settings);
 #ifndef ENABLE_QUALITY
     } else if (settings.type == PQ_SEQUENCE) {

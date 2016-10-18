@@ -35,7 +35,9 @@ public:
     sequence_heap();
 
     void insert(const T &k, const T &v);
-    bool delete_min(T &v, const int &thread_id);
+    bool delete_min(T &v);
+    bool delete_min2(V &value, const int &thread_id) {}
+    
     void clear();
 
     void init_thread(const size_t) const { }

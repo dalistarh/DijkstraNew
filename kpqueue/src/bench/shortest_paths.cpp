@@ -29,11 +29,8 @@
 #include "dist_lsm/dist_lsm.h"
 #include "k_lsm/k_lsm.h"
 #include "util.h"
-#include <fstream>
-#include <iostream>
-#include "pqs/seqpq.h"
 
-constexpr int DEFAULT_NNODES     = 4039;
+constexpr int DEFAULT_NNODES     = 8192;
 constexpr int DEFAULT_NTHREADS   = 1;
 constexpr double DEFAULT_EDGE_P  = 0.5;
 constexpr int DEFAULT_RELAXATION = 256;
@@ -43,7 +40,6 @@ constexpr int DEFAULT_SEED       = 0;
 #define PQ_GLOBALLOCK "globallock"
 #define PQ_KLSM       "klsm"
 #define PQ_MULTIQ     "multiq"
-#define PQ_SEQPQ      "sequential"
 
 static hwloc_wrapper hwloc; /**< Thread pinning functionality. */
 
@@ -88,7 +84,7 @@ struct task_t {
 static void
 usage()
 {
-      fprintf(stderr,
+    fprintf(stderr,
             "USAGE: shortest_paths [-m num_nodes] [-n num_threads] [-p edge_probability]\n"
             "                      [-s seed] pq\n"
             "       -m: The number of nodes generated (default = %d)\n"
@@ -129,55 +125,6 @@ generate_graph(const size_t n,
                 edges[j].push_back(e);
             }
         }
-        data[i].num_edges = edges[i].size();
-        if (edges[i].size() > 0) {
-            data[i].edges = new edge_t[edges[i].size()];
-            for (size_t j = 0; j < edges[i].size(); ++j) {
-                data[i].edges[j] = edges[i][j];
-            }
-        } else {
-            data[i].edges = NULL;
-        }
-        data[i].distance = std::numeric_limits<size_t>::max();
-    }
-
-    data[0].distance = 0;
-    delete[] edges;
-
-    return data;
-}
-
-static vertex_t *
-generate_graph(const size_t n,
-               const int seed
-               )
-{
-    vertex_t *data = new vertex_t[n];
-
-    std::mt19937 rng;
-    rng.seed(seed);
-    std::uniform_int_distribution<size_t> rnd_st(1, std::numeric_limits<int>::max());
-
-     
-    std::ifstream inf;
-    inf.open("facebook_combined.txt");
-    
-    const size_t m = 88234; //number of edges
-    
-	std::vector<edge_t> *edges = new std::vector<edge_t>[n];
-    for (size_t i = 0; i < m; i++) {
-    	edge_t e;
-        size_t u, v;
-        inf >> u >> v; 
-        e.target = u;
-        e.weight = rnd_st(rng);
-        edges[v].push_back(e);
-        e.target = v;
-        edges[u].push_back(e);
-    }
-    
-    inf.close();
-    for (size_t i = 0; i < n; i++) {    
         data[i].num_edges = edges[i].size();
         if (edges[i].size() > 0) {
             data[i].edges = new edge_t[edges[i].size()];
@@ -242,7 +189,7 @@ bench_thread(T *pq,
 
     while (num_tasks.load(std::memory_order_relaxed) > 0) {
         task_t *task;
-        if (!pq->delete_min(task, thread_id)) {
+        if (!pq->delete_min(task)) {
             continue;
         }
 
@@ -291,12 +238,7 @@ bench(T *pq,
     }
 
     int ret = 0;
-    
-    
-    vertex_t *graph;
-    
-    if (settings.edge_probability <= 0) graph = generate_graph(settings.num_nodes, settings.seed);
-    else graph = generate_graph(settings.num_nodes, settings.seed, settings.edge_probability);
+    vertex_t *graph = generate_graph(settings.num_nodes, settings.seed, settings.edge_probability);
 
     /* Our initial node is graph[0]. */
 
@@ -326,10 +268,9 @@ bench(T *pq,
     verify_graph(graph, settings.num_nodes);
 
     const double elapsed = timediff_in_s(start, end);
-    
     fprintf(stdout, "%f\n", elapsed);
 
-	delete_graph(graph, settings.num_nodes);
+    delete_graph(graph, settings.num_nodes);
     return ret;
 }
 
@@ -341,9 +282,7 @@ main(int argc,
     struct settings s = { DEFAULT_NNODES, DEFAULT_NTHREADS, DEFAULT_EDGE_P, DEFAULT_SEED, ""};
 
     int opt;
-    double beta = 0.0; //beta is 0.0 by default
-
-    while ((opt = getopt(argc, argv, "m:n:p:s:b:")) != -1) {
+    while ((opt = getopt(argc, argv, "m:n:p:s:")) != -1) {
         switch (opt) {
         case 'm':
             errno = 0;
@@ -356,32 +295,25 @@ main(int argc,
             errno = 0;
             s.num_threads = strtol(optarg, NULL, 0);
             if (errno != 0) {
-               usage();
+                usage();
             }
             break;
         case 'p':
             errno = 0;
             s.edge_probability = strtod(optarg, NULL);
             if (errno != 0) {
-	       usage();
+                usage();
             }
             break;
         case 's':
             errno = 0;
             s.seed = strtol(optarg, NULL, 0);
             if (errno != 0) {
-	        usage();
+                usage();
             }
             break;
-	case 'b':
-	    errno = 0;
-            beta = strtod(optarg, NULL);
-            if (errno != 0) {
-               usage();
-            } 		
-	    break;
         default:
-	    usage();
+            usage();
         }
     }
 
@@ -393,12 +325,8 @@ main(int argc,
         usage();
     }
 
-    if (s.edge_probability < 0.0 || s.edge_probability > 1.0) {
+    if (s.edge_probability <= 0.0 || s.edge_probability > 1.0) {
         usage();
-    }
-
-    if (beta < 0.0 || beta > 0.5) {
-         usage();
     }
 
     if (optind != argc - 1) {
@@ -417,12 +345,8 @@ main(int argc,
         kpqbench::GlobalLock<uint32_t, task_t *> pq;
         ret = bench(&pq, s);
     } else if (s.type == PQ_MULTIQ) {
-        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads, beta, s.seed);
+        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads);
         ret = bench(&pq, s);
-    } else if (s.type == PQ_SEQPQ) {
-	s.num_threads = 1; //sequential always has 1 thread    	
-	kpqbench::SeqPQ<uint32_t, task_t *> pq;
-	ret = bench(&pq, s);
     } else {
         usage();
     }

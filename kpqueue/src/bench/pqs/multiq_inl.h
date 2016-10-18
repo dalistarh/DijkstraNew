@@ -18,13 +18,11 @@
  */
 
 static thread_local kpq::xorshf96 local_rng;
-static std::uniform_real_distribution<float> rnd_f(0.0, 1.0);
 
 template <class K, class V, int C>
-multiq<K, V, C>::multiq(const size_t num_threads, const double beta, const size_t seed) :
-    m_num_threads(num_threads), beta(beta)
+multiq<K, V, C>::multiq(const size_t num_threads) :
+    m_num_threads(num_threads)
 {
-    rng.seed(seed);
     m_queues = new local_queue[num_queues()]();
     m_locks = new local_lock[num_queues()]();
 }
@@ -38,7 +36,7 @@ multiq<K, V, C>::~multiq()
 
 template <class K, class V, int C>
 bool
-multiq<K, V, C>::delete_min(V &value, const int &queueID)
+multiq<K, V, C>::delete_min(V &value)
 {
     /* Peek at two random queues and lock the one with the minimal item. */
 
@@ -46,20 +44,15 @@ multiq<K, V, C>::delete_min(V &value, const int &queueID)
     size_t i, j;
 
     while (true) {
-	    if (rnd_f(rng) < (1 - beta)) {   //try to choose two queues      
-	        do {
-                i = local_rng() % nqueues; 
-                j = local_rng() % nqueues;
+        do {
+            i = local_rng() % nqueues;
+            j = local_rng() % nqueues;
 
-            	if (m_queues[i].m_top > m_queues[j].m_top) {
-                    std::swap(i, j);
-            	}
-            } while (!lock(i));
-        }
-	    else {  //try to delete from the fixed queues
-	        i = queueID;
-            while (!lock(i)) ;        
-        }
+            if (m_queues[i].m_top > m_queues[j].m_top) {
+                std::swap(i, j);
+            }
+        } while (!lock(i));
+
         auto &pq = m_queues[i].m_pq;
         const auto item = pq.top();
 
@@ -79,6 +72,40 @@ multiq<K, V, C>::delete_min(V &value, const int &queueID)
     assert(false);  // Never reached.
     return false;
 }
+
+template <class K, class V, int C>
+bool
+multiq<K, V, C>::delete_min2(V &value, const int &thread_id)
+{
+    /* Peek at two random queues and lock the one with the minimal item. */
+
+    const int nqueues = num_queues();
+    size_t i, j;
+
+    while (true) {
+        i = thread_id;
+        while (!lock(i));
+
+        auto &pq = m_queues[i].m_pq;
+        const auto item = pq.top();
+
+        if (item.key == SENTINEL_KEY) {
+            // Empty queue, retry indefinitely.
+            // TODO: Not a permanent solution, but original data structure does the same.
+            unlock(i);
+            return false;
+        } else {
+            value = item.value;
+            pq.pop();
+            unlock(i);
+            return true;
+        }
+    }
+
+    assert(false);  // Never reached.
+    return false;
+}
+
 
 template <class K, class V, int C>
 void

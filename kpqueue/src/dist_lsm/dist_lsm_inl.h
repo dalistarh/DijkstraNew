@@ -43,7 +43,7 @@ dist_lsm<K, V, Rlx>::insert(const K &key,
 
 template <class K, class V, int Rlx>
 bool
-dist_lsm<K, V, Rlx>::delete_min(V &val, const int &thread_id)
+dist_lsm<K, V, Rlx>::delete_min(V &val)
 {
     return m_local.get()->delete_min(this, val);
 }

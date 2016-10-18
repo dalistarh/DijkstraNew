@@ -32,7 +32,7 @@ skip_queue<T>::insert(const T &key,
 
 template <class T>
 bool
-skip_queue<T>::delete_min(T &v, const int &thread_id)
+skip_queue<T>::delete_min(T &v)
 {
     if (m_pq.empty()) {
         return false;

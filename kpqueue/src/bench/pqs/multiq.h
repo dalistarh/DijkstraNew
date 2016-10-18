@@ -22,7 +22,6 @@
 
 #include <atomic>
 #include <queue>
-#include <random>
 
 #include "util/thread_local_ptr.h"
 #include "util/xorshf96.h"
@@ -35,7 +34,7 @@ namespace kpqbench
  * "MultiQueues: Simpler, Faster, and Better Relaxed Concurrent Priority Queues".
  * C is a tuning parameter specifying the number of internal queues per thread.
  */
-template <class K, class V, int C = 4>
+template <class K, class V, int C = 1>
 class multiq
 {
 private:
@@ -81,11 +80,12 @@ private:
     } __attribute__((aligned(64)));
 
 public:
-    multiq(const size_t num_threads, const double beta, size_t seed);
+    multiq(const size_t num_threads);
     virtual ~multiq();
 
     void insert(const K &key, const V &value);
-    bool delete_min(V &value, const int &queueID);
+    bool delete_min(V &value);
+    bool delete_min2(V &value, const int &thread_id);
     void clear();
 
     void print() const;
@@ -100,10 +100,6 @@ private:
 
 private:
     const size_t m_num_threads;
-    
-    const double beta;
-    std::mt19937 rng;	
-
 
     local_queue *m_queues;
     local_lock *m_locks;

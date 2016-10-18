@@ -60,7 +60,10 @@ public:
     virtual ~GlobalLock();
 
     void insert(const K &key, const V &value);
-    bool delete_min(V &value, const int &thread_id);
+    bool delete_min(V &value);
+    bool delete_min2(V &value, const int &thread_id) {}
+
+
     void clear();
 
     void print() const;
@@ -99,7 +102,7 @@ GlobalLock<K, V>::~GlobalLock()
 
 template <class K, class V>
 bool
-GlobalLock<K, V>::delete_min(V &value, const int &thread_id)
+GlobalLock<K, V>::delete_min(V &value)
 {
     std::lock_guard<std::mutex> g(m_mutex);
 

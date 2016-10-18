@@ -41,7 +41,7 @@ Linden::insert(const uint32_t &key,
 }
 
 bool
-Linden::delete_min(uint32_t &v, const int& thread_id)
+Linden::delete_min(uint32_t &v)
 {
     v = deletemin(m_q->pq);
     return true;
