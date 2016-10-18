@@ -82,7 +82,11 @@ cheap<K, V>::delete_min(V &value)
     return true;
 }
 
-bool delete_min2(V &value, const int &thread_id) {}
+template <class K, class V>
+bool
+cheap<K, V>::delete_min2(V &value, const int &thread_id)
+{
+} 
 
 template <class K, class V>
 void
