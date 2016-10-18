@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/giorgi128/DijkstraNew/kpqueue/src/sequential_lsm/lsm.cpp
+lsm.h
+/home/giorgi128/DijkstraNew/kpqueue/src/sequential_lsm/lsm.h
+algorithm
+-
+cassert
+-
+
+/home/giorgi128/DijkstraNew/kpqueue/src/sequential_lsm/lsm.h
+cstddef
+-
+cstdint
+-
+vector
+-
+
