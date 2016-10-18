@@ -38,7 +38,7 @@ multiq<K, V, C>::~multiq()
 
 template <class K, class V, int C>
 bool
-multiq<K, V, C>::delete_min(V &value, const int queueID)
+multiq<K, V, C>::delete_min(V &value, const int &queueID)
 {
     /* Peek at two random queues and lock the one with the minimal item. */
 
