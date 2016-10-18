@@ -1,1 +1,0 @@
-/usr/bin/c++   -O3 -DNDEBUG    CMakeFiles/heapsort.dir/heapsort.cpp.o CMakeFiles/heapsort.dir/util.cpp.o  -o heapsort -rdynamic -lhwloc pqs/libsequence_heap.a ../sequential_lsm/libsequential_lsm.a pqs/libskip_queue.a 

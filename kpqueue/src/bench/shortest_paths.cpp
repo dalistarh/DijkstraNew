@@ -242,7 +242,7 @@ bench_thread(T *pq,
 
     while (num_tasks.load(std::memory_order_relaxed) > 0) {
         task_t *task;
-        if (!pq->delete_min(task)) {
+        if (!pq->delete_min(task, thread_id)) {
             continue;
         }
 

@@ -1,2 +1,0 @@
-gcc-ar cr libsequential_lsm.a  CMakeFiles/sequential_lsm.dir/lsm.cpp.o
-gcc-ranlib libsequential_lsm.a

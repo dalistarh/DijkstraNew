@@ -48,7 +48,7 @@ shared_lsm<K, V, Rlx>::insert(block<K, V> *b)
 
 template <class K, class V, int Rlx>
 bool
-shared_lsm<K, V, Rlx>::delete_min(V &val)
+shared_lsm<K, V, Rlx>::delete_min(V &val, const int &thread_id)
 {
     auto local = m_local_component.get();
     return local->delete_min(val, m_global_array);

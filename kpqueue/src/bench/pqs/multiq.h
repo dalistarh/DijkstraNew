@@ -85,7 +85,7 @@ public:
     virtual ~multiq();
 
     void insert(const K &key, const V &value);
-    bool delete_min(V &value);
+    bool delete_min(V &value, const int queueID);
     void clear();
 
     void print() const;

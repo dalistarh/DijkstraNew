@@ -55,7 +55,7 @@ public:
      * In case the local LSM is still empty, false is returned.
      * If a locally minimal element is successfully found and removed, true is returned.
      */
-    bool delete_min(V &val);
+    bool delete_min(V &val, const int &thread_id);
     void find_min(typename block<K, V>::peek_t &best);
 
     int spy();

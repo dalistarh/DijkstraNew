@@ -1,2 +1,0 @@
-gcc-ar cr libthread_local_ptr.a  CMakeFiles/thread_local_ptr.dir/thread_local_ptr.cpp.o
-gcc-ranlib libthread_local_ptr.a

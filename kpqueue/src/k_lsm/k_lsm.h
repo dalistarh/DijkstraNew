@@ -47,7 +47,7 @@ public:
     void insert(const K &key,
                 const V &val);
 
-    bool delete_min(V &val);
+    bool delete_min(V &val, const int &thread_id);
 
     void init_thread(const size_t) const { }
     constexpr static bool supports_concurrency() { return true; }

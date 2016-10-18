@@ -40,7 +40,7 @@ public:
     virtual ~SeqPQ();
 
     void insert(const K &key, const V &value);
-    bool delete_min(V &value);
+    bool delete_min(V &value, const int  &thread_id);
     void clear();
 
     void print() const;
@@ -77,7 +77,7 @@ SeqPQ<K, V>::~SeqPQ()
 
 template <class K, class V>
 bool
-SeqPQ<K, V>::delete_min(V &value)
+SeqPQ<K, V>::delete_min(V &value, const int &thread_id)
 {
 
     if (m_length == 0) {

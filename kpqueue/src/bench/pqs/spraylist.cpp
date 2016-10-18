@@ -59,7 +59,7 @@ spraylist::insert(const uint32_t &k,
 }
 
 bool
-spraylist::delete_min(uint32_t &v)
+spraylist::delete_min(uint32_t &v, const int& thread_id)
 {
     const int ret = spray_delete_min(m_q, &v, d);
     return (ret == 1);

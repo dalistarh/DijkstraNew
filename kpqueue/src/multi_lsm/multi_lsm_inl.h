@@ -53,7 +53,7 @@ multi_lsm<K, V, C>::insert(const K &key,
 
 template <class K, class V, int C>
 bool
-multi_lsm<K, V, C>::delete_min(V &val)
+multi_lsm<K, V, C>::delete_min(V &val, const int &thread_id)
 {
     /* Delete the better item from two random queues. */
 

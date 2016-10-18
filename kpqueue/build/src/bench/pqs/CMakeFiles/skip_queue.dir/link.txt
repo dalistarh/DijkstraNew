@@ -1,2 +1,0 @@
-gcc-ar cr libskip_queue.a  CMakeFiles/skip_queue.dir/skip_queue.cpp.o
-gcc-ranlib libskip_queue.a
