@@ -379,7 +379,7 @@ bench_thread(PriorityQueue *pq,
         } else {
             counter++;
             bool ww;            
-            if (counter % beta == 0) ww = pq->delete_min2(v, thread_id); else w = pq->delete_min(v);
+            if (counter % beta == 0) ww = pq->delete_min2(v, thread_id); else ww = pq->delete_min(v);
             
             if (ww) {
 #ifdef ENABLE_QUALITY

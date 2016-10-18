@@ -80,7 +80,7 @@ multiq<K, V, C>::delete_min2(V &value, const int &thread_id)
     /* Peek at two random queues and lock the one with the minimal item. */
 
     const int nqueues = num_queues();
-    size_t i, j;
+    size_t i;
 
     while (true) {
         i = thread_id;

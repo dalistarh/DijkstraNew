@@ -53,6 +53,7 @@ private:
 public:
     void insert(const K &key, const V &value);
     bool delete_min(V &value);
+    bool delete_min2(V &value, const int &thread_id);
 
     void print() const;
 
@@ -86,6 +87,7 @@ template <class K, class V>
 bool
 cheap<K, V>::delete_min2(V &value, const int &thread_id)
 {
+    return 0;
 } 
 
 template <class K, class V>
