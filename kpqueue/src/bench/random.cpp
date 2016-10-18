@@ -99,7 +99,7 @@ enum {
 };
 
 constexpr int DEFAULT_SEED       = 0;
-constexpr int DEFAULT_SIZE       = 1000000;  // Matches benchmarks from klsm paper.
+constexpr int DEFAULT_SIZE       = 10000000;  // Matches benchmarks from klsm paper.
 constexpr int DEFAULT_NTHREADS   = 1;
 constexpr int DEFAULT_RELAXATION = 256;
 #ifdef ENABLE_QUALITY

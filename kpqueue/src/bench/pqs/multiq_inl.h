@@ -46,7 +46,7 @@ multiq<K, V, C>::delete_min(V &value, const int queueID)
     size_t i, j;
 
     while (true) {
-	    if (rnd_f(rng) < beta) {   //try to choose two queues      
+	    if (rnd_f(rng) < (1 - beta)) {   //try to choose two queues      
 	        do {
                 i = local_rng() % nqueues; 
                 j = local_rng() % nqueues;
