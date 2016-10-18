@@ -287,7 +287,7 @@ LSM<T>::insert(const T &key,
 
 template <class T>
 bool
-LSM<T>::delete_min(T &v)
+LSM<T>::delete_min(T &v, const int &thread_id)
 {
     if (m_head == nullptr) {
         return false;

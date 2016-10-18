@@ -43,7 +43,7 @@ sequence_heap<T>::insert(const T &key,
 
 template <class T>
 bool
-sequence_heap<T>::delete_min(T &v)
+sequence_heap<T>::delete_min(T &v, const int &thread_id)
 {
     if (m_pq->getSize() == 0) {
         return false;

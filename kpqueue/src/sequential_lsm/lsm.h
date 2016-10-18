@@ -38,7 +38,7 @@ public:
     ~LSM();
 
     void insert(const T &k, const T &v);
-    bool delete_min(T &v);
+    bool delete_min(T &v, const int &thread_id);
     void clear();
 
     void print() const;

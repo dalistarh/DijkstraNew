@@ -38,7 +38,7 @@ multiq<K, V, C>::~multiq()
 
 template <class K, class V, int C>
 bool
-multiq<K, V, C>::delete_min(V &value)
+multiq<K, V, C>::delete_min(V &value, const int queueID)
 {
     /* Peek at two random queues and lock the one with the minimal item. */
 
@@ -46,9 +46,9 @@ multiq<K, V, C>::delete_min(V &value)
     size_t i, j;
 
     while (true) {
-	if (rnd_f(rng) < beta) {   //try to choose two queues      
-	    do {
-                i = local_rng() % nqueues;
+	    if (rnd_f(rng) < beta) {   //try to choose two queues      
+	        do {
+                i = local_rng() % nqueues; 
                 j = local_rng() % nqueues;
 
             	if (m_queues[i].m_top > m_queues[j].m_top) {
@@ -56,12 +56,10 @@ multiq<K, V, C>::delete_min(V &value)
             	}
             } while (!lock(i));
         }
-	else {  //pick just one random queue
-	    do {
-                i = local_rng() % nqueues;
-               
-            } while (!lock(i));	
-	}
+	    else {  //try to delete from the fixed queues
+	        i = queueID;
+            while (!lock(i)) ;        
+        }
         auto &pq = m_queues[i].m_pq;
         const auto item = pq.top();
 

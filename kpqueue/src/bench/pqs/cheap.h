@@ -52,7 +52,7 @@ private:
 
 public:
     void insert(const K &key, const V &value);
-    bool delete_min(V &value);
+    bool delete_min(V &value, const int &thread_id);
 
     void print() const;
 
@@ -67,7 +67,7 @@ private:
 
 template <class K, class V>
 bool
-cheap<K, V>::delete_min(V &value)
+cheap<K, V>::delete_min(V &value, const int &thread_id)
 {
     pq_t *pq = m_q.get();
     if (pq->empty()) {

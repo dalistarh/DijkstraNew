@@ -82,7 +82,7 @@ k_lsm<K, V, Rlx>::insert(const K &key,
 
 template <class K, class V, int Rlx>
 bool
-k_lsm<K, V, Rlx>::delete_min(V &val)
+k_lsm<K, V, Rlx>::delete_min(V &val, const int &thread_id)
 {
     /* Load the best item from the local distributed lsm, and the (relaxed)
      * best item from the global lsm, and return the best of both.

@@ -74,7 +74,7 @@ bench(T *pq,
     }
 
     for (int i = 0; i < settings.nelems; i++) {
-        pq->delete_min(xs[i]);
+        pq->delete_min(xs[i], 0);
     }
 
     clock_gettime(CLOCK_MONOTONIC, &end);

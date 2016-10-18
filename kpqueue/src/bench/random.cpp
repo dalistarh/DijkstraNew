@@ -71,6 +71,8 @@
 #define VAL_TYPE      uint32_t
 #endif
 
+double beta = 0.0; //parameter to pick one queue
+
 /**
  * Uniform: Each thread performs 50% inserts, 50% deletes.
  * Split: 50% of threads perform inserts, 50% of threads perform deletes (in case of an
@@ -375,7 +377,7 @@ bench_thread(PriorityQueue *pq,
 #endif
             kpq::COUNTERS.inserts++;
         } else {
-            if (pq->delete_min(v)) {
+            if (pq->delete_min(v, thread_id)) {
 #ifdef ENABLE_QUALITY
                 deletions->emplace_back(packed_item_id { v.thread_id
                                                        , v.element_id
@@ -733,7 +735,7 @@ main(int argc,
                                };
 
     int opt;
-    while ((opt = getopt(argc, argv, "ci:k:n:p:s:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "ci:k:n:p:s:w:b:")) != -1) {
         switch (opt) {
         case 'c':
             settings.print_counters = true;
@@ -753,6 +755,14 @@ main(int argc,
         case 'w':
             settings.workload = safe_parse_int_arg(optarg);
             break;
+        case 'b':
+	        errno = 0;
+            beta = strtod(optarg, NULL);
+            if (errno != 0) {
+               usage();
+            } 		
+	        break;
+            
         default:
             usage();
         }
@@ -801,7 +811,7 @@ main(int argc,
         kpq::multi_lsm<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
         ret = bench(&pq, settings);
     } else if (settings.type == PQ_MULTIQ) {
-        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads, 0.0, settings.seed); //just add dummy values
+        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads, beta, settings.seed); 
         ret = bench(&pq, settings);
 #ifndef ENABLE_QUALITY
     } else if (settings.type == PQ_SEQUENCE) {

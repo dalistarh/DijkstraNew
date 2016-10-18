@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../lib/skip_list/skip_list.h
+skip_list_detail.h
+../lib/skip_list/skip_list_detail.h
+memory
+-
+functional
+-
+iterator
+-
+utility
+-
+
+../lib/skip_list/skip_list_detail.h
+cmath
+-
+cstdlib
+-
+cstdio
+-
+cassert
+-
+stdio.h
+-
+iostream
+-
+
+/home/giorgi/Documents/DijkstraNew/kpqueue/src/bench/pqs/skip_queue.cpp
+skip_queue.h
+/home/giorgi/Documents/DijkstraNew/kpqueue/src/bench/pqs/skip_queue.h
+
+/home/giorgi/Documents/DijkstraNew/kpqueue/src/bench/pqs/skip_queue.h
+skip_list.h
+/home/giorgi/Documents/DijkstraNew/kpqueue/src/bench/pqs/skip_list.h
+
