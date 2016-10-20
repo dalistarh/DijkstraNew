@@ -698,7 +698,7 @@ bench(PriorityQueue *pq,
     uint64_t max;
     double mean, stddev;
     evaluate_quality(insertion_sequences, deletion_sequences, &mean, &max, &stddev);
-    fprintf(stdout, "%f, %lu, %f\n", mean, max, stddev);
+    fprintf(stdout, "mean=%f, max=%lu, stddev=%f\n", mean, max, stddev);
 #else
     const double elapsed = timediff_in_s(start, end);
     size_t ops_per_s = (size_t)((double)counters.operations() / elapsed);

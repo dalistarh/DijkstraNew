@@ -46,6 +46,8 @@ static hwloc_wrapper hwloc; /**< Thread pinning functionality. */
 static std::atomic<bool> start_barrier(false);
 static std::atomic<int> num_tasks(0);
 
+int beta;
+
 struct settings {
     int num_nodes;
     int num_threads;
@@ -186,11 +188,21 @@ bench_thread(T *pq,
     while (!start_barrier.load(std::memory_order_relaxed)) {
         /* Wait. */
     }
-
+    int betacount = 0;
     while (num_tasks.load(std::memory_order_relaxed) > 0) {
         task_t *task;
-        if (!pq->delete_min(task)) {
-            continue;
+        betacount++;
+        if (betacount % beta == 0)
+        {
+            if (!pq->delete_min(task)) {
+                continue;
+            }   
+        }
+        else
+        {
+            if (!pq->delete_min2(task)) {
+                continue;
+            }           
         }
 
         const vertex_t *v = task->v;
@@ -282,7 +294,8 @@ main(int argc,
     struct settings s = { DEFAULT_NNODES, DEFAULT_NTHREADS, DEFAULT_EDGE_P, DEFAULT_SEED, ""};
 
     int opt;
-    while ((opt = getopt(argc, argv, "m:n:p:s:")) != -1) {
+    int qq;
+    while ((opt = getopt(argc, argv, "m:n:p:s:b:q:")) != -1) {
         switch (opt) {
         case 'm':
             errno = 0;
@@ -312,6 +325,20 @@ main(int argc,
                 usage();
             }
             break;
+        case 'b':
+            errno = 0;
+            beta = strtol(optarg, NULL, 0);
+            if (errno != 0) {
+                usage();
+            }
+            break;
+        case 'q':
+            errno = 0;
+            qq = strtol(optarg, NULL, 0);
+            if (errno != 0) {
+                usage();
+            }
+            break;
         default:
             usage();
         }
@@ -334,18 +361,10 @@ main(int argc,
     }
 
     s.type = argv[optind];
+    s.type = PQ_MULTIQ;
 
-    if (s.type == PQ_DLSM) {
-        kpq::dist_lsm<uint32_t, task_t *, DEFAULT_RELAXATION> pq;
-        ret = bench(&pq, s);
-    } else if (s.type == PQ_KLSM) {
-        kpq::k_lsm<uint32_t, task_t *, DEFAULT_RELAXATION> pq;
-        ret = bench(&pq, s);
-    } else if (s.type == PQ_GLOBALLOCK) {
-        kpqbench::GlobalLock<uint32_t, task_t *> pq;
-        ret = bench(&pq, s);
-    } else if (s.type == PQ_MULTIQ) {
-        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads, s.num_threads);
+    if (s.type == PQ_MULTIQ) {
+        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads, qq);
         ret = bench(&pq, s);
     } else {
         usage();
