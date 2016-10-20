@@ -72,7 +72,6 @@
 #endif
 
 int beta;
-
 /**
  * Uniform: Each thread performs 50% inserts, 50% deletes.
  * Split: 50% of threads perform inserts, 50% of threads perform deletes (in case of an
@@ -362,7 +361,7 @@ bench_thread(PriorityQueue *pq,
 #ifdef HAVE_VALGRIND
     CALLGRIND_ZERO_STATS;
 #endif
-    int counter = 0;
+    int counterr = 0;
     KEY_TYPE k;
     VAL_TYPE v;
     while (!end_barrier.load(std::memory_order_relaxed)) {
@@ -374,14 +373,18 @@ bench_thread(PriorityQueue *pq,
             pq->insert(k, v);
 #else
             pq->insert(k, k);
-#endif
+#endif      
             kpq::COUNTERS.inserts++;
         } else {
-            counter++;
-            bool ww;            
-            if (counter % beta == 0) ww = pq->delete_min2(v, thread_id); else ww = pq->delete_min(v);
-            
-            if (ww) {
+	    counterr++;
+	    bool ww;     
+	    
+            if (counterr % beta != 0) ww = pq->delete_min2(v, thread_id); 
+	    else ww = pq->delete_min(v);
+	    
+            if (ww)
+	    {
+
 #ifdef ENABLE_QUALITY
                 deletions->emplace_back(packed_item_id { v.thread_id
                                                        , v.element_id

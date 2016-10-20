@@ -1,0 +1,31 @@
+dlsm 1 0.008913
+dlsm 2 0.00623
+dlsm 4 0.006899
+dlsm 8 0.01234
+dlsm 16 0.053071
+dlsm 32 0.515352
+globallock 1 0.005742
+globallock 2 0.010597
+globallock 4 0.016927
+globallock 8 0.021008
+globallock 16 0.047513
+globallock 32 0.077651
+klsm 1 0.009342
+klsm 2 0.006689
+klsm 4 0.006294
+klsm 8 0.013039
+klsm 16 0.057382
+klsm 32 0.507
+multiq 0.0 1 0.006197
+multiq 0.0 2 0.006095
+multiq 0.0 4 0.004577
+multiq 0.0 8 0.00401
+multiq 0.0 16 0.017416
+multiq 0.0 32 0.024756
+multiq 0.5 1 0.006404
+multiq 0.5 2 0.006042
+multiq 0.5 4 0.00402
+multiq 0.5 8 0.003569
+multiq 0.5 16 0.012675
+multiq 0.5 32 0.022918
+Sequential 1 0.005178

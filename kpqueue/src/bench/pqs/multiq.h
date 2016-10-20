@@ -34,7 +34,7 @@ namespace kpqbench
  * "MultiQueues: Simpler, Faster, and Better Relaxed Concurrent Priority Queues".
  * C is a tuning parameter specifying the number of internal queues per thread.
  */
-template <class K, class V, int C = 1>
+template <class K, class V, int C = 4>
 class multiq
 {
 private:

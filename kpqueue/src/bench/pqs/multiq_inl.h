@@ -77,15 +77,16 @@ template <class K, class V, int C>
 bool
 multiq<K, V, C>::delete_min2(V &value, const int &thread_id)
 {
-    /* Peek at two random queues and lock the one with the minimal item. */
+    /*choose one random queue */
 
     const int nqueues = num_queues();
     size_t i;
 
     while (true) {
-        i = thread_id;
-        while (!lock(i));
-
+        do	 {
+	{
+	    i = local_rng() % nqueues;
+        } while (!lock(i));
         auto &pq = m_queues[i].m_pq;
         const auto item = pq.top();
 
