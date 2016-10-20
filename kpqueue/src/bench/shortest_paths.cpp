@@ -345,7 +345,7 @@ main(int argc,
         kpqbench::GlobalLock<uint32_t, task_t *> pq;
         ret = bench(&pq, s);
     } else if (s.type == PQ_MULTIQ) {
-        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads);
+        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads, s.num_threads);
         ret = bench(&pq, s);
     } else {
         usage();

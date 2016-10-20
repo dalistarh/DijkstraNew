@@ -20,8 +20,8 @@
 static thread_local kpq::xorshf96 local_rng;
 
 template <class K, class V, int C>
-multiq<K, V, C>::multiq(const size_t num_threads) :
-    m_num_threads(num_threads)
+multiq<K, V, C>::multiq(const size_t num_threads, const size_t qq) :
+    m_num_threads(num_threads), m_num_queues(qq)
 {
     m_queues = new local_queue[num_queues()]();
     m_locks = new local_lock[num_queues()]();

@@ -739,7 +739,8 @@ main(int argc,
                                };
 
     int opt;
-    while ((opt = getopt(argc, argv, "ci:k:n:p:s:w:b:")) != -1) {
+    int qq;
+    while ((opt = getopt(argc, argv, "ci:k:n:p:s:w:b:q:")) != -1) {
         switch (opt) {
         case 'c':
             settings.print_counters = true;
@@ -752,15 +753,19 @@ main(int argc,
             break;
         case 'p':
             settings.nthreads = safe_parse_int_arg(optarg);
+            qq = settings.nthreads;            
             break;
         case 's':
-            settings.seed = safe_parse_int_arg(optarg);
+            settings.seed = safe_parse_int_arg(optarg);            
             break;
         case 'w':
             settings.workload = safe_parse_int_arg(optarg);
             break;
         case 'b':
             beta = safe_parse_int_arg(optarg);
+            break;
+        case 'q':
+            qq = safe_parse_int_arg(optarg);
             break;
         default:
             usage();
@@ -779,7 +784,7 @@ main(int argc,
     settings.type = PQ_MULTIQ; //we just need a multiqueue here
     
     if (settings.type == PQ_MULTIQ) {
-        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
+        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads, qq);
         ret = bench(&pq, settings);
     } else {
         usage();

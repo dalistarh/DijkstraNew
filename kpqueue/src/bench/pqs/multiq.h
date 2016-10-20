@@ -80,7 +80,7 @@ private:
     } __attribute__((aligned(64)));
 
 public:
-    multiq(const size_t num_threads);
+    multiq(const size_t num_threads, const size_t num_queues);
     virtual ~multiq();
 
     void insert(const K &key, const V &value);
@@ -94,12 +94,13 @@ public:
     constexpr static bool supports_concurrency() { return true; }
 
 private:
-    size_t num_queues() const { return m_num_threads * C; }
+    size_t num_queues() const { return m_num_queues; }
     bool lock(const size_t ix);
     void unlock(const size_t ix);
 
 private:
     const size_t m_num_threads;
+    const size_t m_num_queues;
 
     local_queue *m_queues;
     local_lock *m_locks;
