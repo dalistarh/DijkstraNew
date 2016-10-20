@@ -6,9 +6,9 @@ import shlex
 
 NREPEATS = 10  #number of times to call Dijkstra in order to measure average time
 seed = 0
-prob = 0.1 #probability of having an edge, if 0 use social networsk graph
+prob = 0.1 #probability of having an edge
 betaValues = [1, 5, 15, 20]  #probability of using two random queues
-nvertices = 10000;
+nvertices = 10000
 nthreads = 64
 nqueues = 64
 version = "multiq"
@@ -35,11 +35,7 @@ def RunDijkstra(beta):
 		
 		for i in range(0, NREPEATS):
 		
-			ans = subprocess.check_output(args)
-
 			st = subprocess.check_output(args)
-			st = st[:-2]
-			
 			t  += float(st)
 			
 			
