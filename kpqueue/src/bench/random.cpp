@@ -72,6 +72,7 @@
 #endif
 
 int beta;
+
 /**
  * Uniform: Each thread performs 50% inserts, 50% deletes.
  * Split: 50% of threads perform inserts, 50% of threads perform deletes (in case of an
@@ -361,7 +362,7 @@ bench_thread(PriorityQueue *pq,
 #ifdef HAVE_VALGRIND
     CALLGRIND_ZERO_STATS;
 #endif
-    int counterr = 0;
+    int betacounter = 0;
     KEY_TYPE k;
     VAL_TYPE v;
     while (!end_barrier.load(std::memory_order_relaxed)) {
@@ -373,18 +374,14 @@ bench_thread(PriorityQueue *pq,
             pq->insert(k, v);
 #else
             pq->insert(k, k);
-#endif      
+#endif
             kpq::COUNTERS.inserts++;
         } else {
-	    counterr++;
-	    bool ww;     
-	    
-            if (counterr % beta != 0) ww = pq->delete_min2(v, thread_id); 
-	    else ww = pq->delete_min(v);
-	    
-            if (ww)
-	    {
-
+            betacounter++;
+            bool ww;            
+            if (betacounter % beta != 0) ww = pq->delete_min2(v/*, thread_id*/); else ww = pq->delete_min(v);
+            
+            if (ww) {
 #ifdef ENABLE_QUALITY
                 deletions->emplace_back(packed_item_id { v.thread_id
                                                        , v.element_id
@@ -778,59 +775,12 @@ main(int argc,
     if (optind != argc - 1) {
         usage();
     }
-
-    if (settings.type == PQ_CHEAP) {
-        kpqbench::cheap<KEY_TYPE, VAL_TYPE> pq;
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_DLSM) {
-        kpq::dist_lsm<KEY_TYPE, VAL_TYPE, DEFAULT_RELAXATION> pq;
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_GLOBALLOCK) {
-        kpqbench::GlobalLock<KEY_TYPE, VAL_TYPE> pq;
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_KLSM16) {
-        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 16> pq;
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_KLSM128) {
-        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 128> pq;
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_KLSM256) {
-        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 256> pq;
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_KLSM4096) {
-        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 4096> pq;
-        ret = bench(&pq, settings);
-#ifndef ENABLE_QUALITY
-    } else if (settings.type == PQ_LINDEN) {
-        kpqbench::Linden pq(kpqbench::Linden::DEFAULT_OFFSET);
-        pq.insert(42, 42); /* A hack to avoid segfault on destructor in empty linden queue. */
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_LSM) {
-        kpq::LSM<KEY_TYPE> pq;
-        ret = bench(&pq, settings);
-#endif
-    } else if (settings.type == PQ_MLSM) {
-        kpq::multi_lsm<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_MULTIQ) {
+    
+    settings.type = PQ_MULTIQ; //we just need a multiqueue here
+    
+    if (settings.type == PQ_MULTIQ) {
         kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
         ret = bench(&pq, settings);
-#ifndef ENABLE_QUALITY
-    } else if (settings.type == PQ_SEQUENCE) {
-        kpqbench::sequence_heap<KEY_TYPE> pq;
-        ret = bench(&pq, settings);
-    } else if (settings.type == PQ_SKIP) {
-        kpqbench::skip_queue<KEY_TYPE> pq;
-        ret = bench(&pq, settings);
-#endif
-    } else if (settings.type == PQ_SLSM) {
-        kpq::shared_lsm<KEY_TYPE, VAL_TYPE, DEFAULT_RELAXATION> pq;
-        ret = bench(&pq, settings);
-#ifndef ENABLE_QUALITY
-    } else if (settings.type == PQ_SPRAY) {
-        kpqbench::spraylist pq;
-        ret = bench(&pq, settings);
-#endif
     } else {
         usage();
     }

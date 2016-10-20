@@ -85,7 +85,7 @@ public:
 
     void insert(const K &key, const V &value);
     bool delete_min(V &value);
-    bool delete_min2(V &value, const int &thread_id);
+    bool delete_min2(V &value/*, const int &thread_id*/);
     void clear();
 
     void print() const;

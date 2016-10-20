@@ -48,8 +48,6 @@ public:
                 const V &val);
     void insert(block<K, V> *b);
 
-    bool delete_min2(V &value, const int &thread_id) { return 0; }
-
     bool delete_min(V &val);
     void find_min(typename block<K, V>::peek_t &best);
 

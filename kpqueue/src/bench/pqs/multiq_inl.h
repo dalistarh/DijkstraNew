@@ -75,18 +75,19 @@ multiq<K, V, C>::delete_min(V &value)
 
 template <class K, class V, int C>
 bool
-multiq<K, V, C>::delete_min2(V &value, const int &thread_id)
+multiq<K, V, C>::delete_min2(V &value/*, const int &thread_id*/)
 {
-    /*choose one random queue */
+    /* choose one random queue */
 
     const int nqueues = num_queues();
     size_t i;
 
     while (true) {
-        do	 {
-	{
-	    i = local_rng() % nqueues;
+        do
+        {
+            i = local_rng() % nqueues;
         } while (!lock(i));
+
         auto &pq = m_queues[i].m_pq;
         const auto item = pq.top();
 
