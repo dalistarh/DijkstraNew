@@ -4,7 +4,7 @@ import shlex
 #import matplotlib.pyplot as plt
 
 
-NREPEATS = 10  #number of times to call Dijkstra in order to measure average time
+NREPEATS = 4  #number of times to call Dijkstra in order to measure average time
 version = "multiq"
 
 #build kpqueue
