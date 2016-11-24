@@ -1,5 +1,12 @@
 10000 nodes;64 threads;64 queues;0.1 edge probability;
+<<<<<<< HEAD
 time=0.67307;beta=1
 time=0.781344;beta=5
 time=0.700737;beta=15
 time=0.659245;beta=20
+=======
+time=0.1923357;beta=1
+time=0.0989273;beta=5
+time=0.1080742;beta=15
+time=0.1091188;beta=20
+>>>>>>> da794da5ee42ce3fdfd65e39f80c6305a60b02fa
