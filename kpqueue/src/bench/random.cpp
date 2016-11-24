@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with kpqueue.  If not, see <http://www.gnu.org/licenses/>.
  */
-//#define ENABLE_QUALITY 1
+#define ENABLE_QUALITY 1
 
 #include <ctime>
 #include <future>
@@ -697,7 +697,7 @@ bench(PriorityQueue *pq,
     uint64_t max;
     double mean, stddev;
     evaluate_quality(insertion_sequences, deletion_sequences, &mean, &max, &stddev);
-    fprintf(stdout, "%f, %lu, %f\n", mean, max, stddev);
+    fprintf(stdout, "%f %lu %f\n", mean, max, stddev);
 #else
     const double elapsed = timediff_in_s(start, end);
     size_t ops_per_s = (size_t)((double)counters.operations() / elapsed);
