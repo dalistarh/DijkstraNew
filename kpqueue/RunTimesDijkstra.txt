@@ -1,0 +1,15 @@
+beta=1 DijkstraRunTime= 1.0737305
+beta=2 DijkstraRunTime= 0.8994
+beta=3 DijkstraRunTime= 0.84905875
+beta=4 DijkstraRunTime= 0.8447685
+beta=5 DijkstraRunTime= 0.952798
+beta=6 DijkstraRunTime= 0.7161475
+beta=7 DijkstraRunTime= 0.83231775
+beta=8 DijkstraRunTime= 0.793638
+beta=9 DijkstraRunTime= 0.8468205
+beta=10 DijkstraRunTime= 0.78433725
+beta=11 DijkstraRunTime= 0.75663375
+beta=12 DijkstraRunTime= 0.879221
+beta=13 DijkstraRunTime= 0.7157435
+beta=14 DijkstraRunTime= 0.83804875
+beta=15 DijkstraRunTime= 0.844578
