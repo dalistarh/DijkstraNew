@@ -37,6 +37,7 @@ public:
 
     void insert(const uint32_t &k, const uint32_t &v);
     bool delete_min(uint32_t &v);
+    bool delete_min2(uint32_t &value, const int &thread_id) {}
 
     static void print_name() { std::cout << "spraylist"; }
     constexpr static bool supports_concurrency() { return true; }

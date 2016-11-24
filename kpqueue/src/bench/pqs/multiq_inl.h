@@ -20,8 +20,8 @@
 static thread_local kpq::xorshf96 local_rng;
 
 template <class K, class V, int C>
-multiq<K, V, C>::multiq(const size_t num_threads, const size_t qq) :
-    m_num_threads(num_threads), m_num_queues(qq)
+multiq<K, V, C>::multiq(const size_t num_threads) :
+    m_num_threads(num_threads)
 {
     m_queues = new local_queue[num_queues()]();
     m_locks = new local_lock[num_queues()]();
@@ -75,18 +75,16 @@ multiq<K, V, C>::delete_min(V &value)
 
 template <class K, class V, int C>
 bool
-multiq<K, V, C>::delete_min2(V &value/*, const int &thread_id*/)
+multiq<K, V, C>::delete_min2(V &value, const int &thread_id)
 {
-    /* choose one random queue */
+    /* Peek at two random queues and lock the one with the minimal item. */
 
     const int nqueues = num_queues();
-    size_t i;
+    size_t i, j;
 
     while (true) {
-        do
-        {
-            i = local_rng() % nqueues;
-        } while (!lock(i));
+        i = thread_id;
+        while (!lock(i));
 
         auto &pq = m_queues[i].m_pq;
         const auto item = pq.top();

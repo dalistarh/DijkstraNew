@@ -16,8 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with kpqueue.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-// #define ENABLE_QUALITY 1
+//#define ENABLE_QUALITY 1
 
 #include <ctime>
 #include <future>
@@ -71,7 +70,7 @@
 #define VAL_TYPE      uint32_t
 #endif
 
-int beta;
+size_t beta = 1;
 
 /**
  * Uniform: Each thread performs 50% inserts, 50% deletes.
@@ -99,8 +98,8 @@ enum {
 };
 
 constexpr int DEFAULT_SEED       = 0;
-constexpr int DEFAULT_SIZE       = 1000000;  // Matches benchmarks from klsm paper.
-constexpr int DEFAULT_NTHREADS   = 1;
+constexpr int DEFAULT_SIZE       = 20000000;  // benchmarks from klsm paper=1000000, we use 20M to avoid failed deletes
+constexpr int DEFAULT_NTHREADS   = 32;
 constexpr int DEFAULT_RELAXATION = 256;
 #ifdef ENABLE_QUALITY
 constexpr int DEFAULT_SLEEP      = 1;
@@ -362,7 +361,7 @@ bench_thread(PriorityQueue *pq,
 #ifdef HAVE_VALGRIND
     CALLGRIND_ZERO_STATS;
 #endif
-    int betacounter = 0;
+    size_t counter = 0;
     KEY_TYPE k;
     VAL_TYPE v;
     while (!end_barrier.load(std::memory_order_relaxed)) {
@@ -377,9 +376,9 @@ bench_thread(PriorityQueue *pq,
 #endif
             kpq::COUNTERS.inserts++;
         } else {
-            betacounter++;
+            counter++;
             bool ww;            
-            if (betacounter % beta != 0) ww = pq->delete_min2(v/*, thread_id*/); else ww = pq->delete_min(v);
+            if (counter % beta != 0) ww = pq->delete_min2(v, thread_id); else ww = pq->delete_min(v);
             
             if (ww) {
 #ifdef ENABLE_QUALITY
@@ -698,7 +697,7 @@ bench(PriorityQueue *pq,
     uint64_t max;
     double mean, stddev;
     evaluate_quality(insertion_sequences, deletion_sequences, &mean, &max, &stddev);
-    fprintf(stdout, "mean=%f, max=%lu, stddev=%f\n", mean, max, stddev);
+    fprintf(stdout, "%f, %lu, %f\n", mean, max, stddev);
 #else
     const double elapsed = timediff_in_s(start, end);
     size_t ops_per_s = (size_t)((double)counters.operations() / elapsed);
@@ -739,8 +738,7 @@ main(int argc,
                                };
 
     int opt;
-    int qq;
-    while ((opt = getopt(argc, argv, "ci:k:n:p:s:w:b:q:")) != -1) {
+    while ((opt = getopt(argc, argv, "ci:k:n:p:s:w:b:")) != -1) {
         switch (opt) {
         case 'c':
             settings.print_counters = true;
@@ -753,19 +751,15 @@ main(int argc,
             break;
         case 'p':
             settings.nthreads = safe_parse_int_arg(optarg);
-            qq = settings.nthreads;            
             break;
         case 's':
-            settings.seed = safe_parse_int_arg(optarg);            
+            settings.seed = safe_parse_int_arg(optarg);
             break;
         case 'w':
             settings.workload = safe_parse_int_arg(optarg);
             break;
         case 'b':
             beta = safe_parse_int_arg(optarg);
-            break;
-        case 'q':
-            qq = safe_parse_int_arg(optarg);
             break;
         default:
             usage();
@@ -780,12 +774,59 @@ main(int argc,
     if (optind != argc - 1) {
         usage();
     }
-    
-    settings.type = PQ_MULTIQ; //we just need a multiqueue here
-    
-    if (settings.type == PQ_MULTIQ) {
-        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads, qq);
+
+    if (settings.type == PQ_CHEAP) {
+        kpqbench::cheap<KEY_TYPE, VAL_TYPE> pq;
         ret = bench(&pq, settings);
+    } else if (settings.type == PQ_DLSM) {
+        kpq::dist_lsm<KEY_TYPE, VAL_TYPE, DEFAULT_RELAXATION> pq;
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_GLOBALLOCK) {
+        kpqbench::GlobalLock<KEY_TYPE, VAL_TYPE> pq;
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_KLSM16) {
+        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 16> pq;
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_KLSM128) {
+        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 128> pq;
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_KLSM256) {
+        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 256> pq;
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_KLSM4096) {
+        kpq::k_lsm<KEY_TYPE, VAL_TYPE, 4096> pq;
+        ret = bench(&pq, settings);
+#ifndef ENABLE_QUALITY
+    } else if (settings.type == PQ_LINDEN) {
+        kpqbench::Linden pq(kpqbench::Linden::DEFAULT_OFFSET);
+        pq.insert(42, 42); /* A hack to avoid segfault on destructor in empty linden queue. */
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_LSM) {
+        kpq::LSM<KEY_TYPE> pq;
+        ret = bench(&pq, settings);
+#endif
+    } else if (settings.type == PQ_MLSM) {
+        kpq::multi_lsm<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_MULTIQ) {
+        kpqbench::multiq<KEY_TYPE, VAL_TYPE> pq(settings.nthreads);
+        ret = bench(&pq, settings);
+#ifndef ENABLE_QUALITY
+    } else if (settings.type == PQ_SEQUENCE) {
+        kpqbench::sequence_heap<KEY_TYPE> pq;
+        ret = bench(&pq, settings);
+    } else if (settings.type == PQ_SKIP) {
+        kpqbench::skip_queue<KEY_TYPE> pq;
+        ret = bench(&pq, settings);
+#endif
+    } else if (settings.type == PQ_SLSM) {
+        kpq::shared_lsm<KEY_TYPE, VAL_TYPE, DEFAULT_RELAXATION> pq;
+        ret = bench(&pq, settings);
+#ifndef ENABLE_QUALITY
+    } else if (settings.type == PQ_SPRAY) {
+        kpqbench::spraylist pq;
+        ret = bench(&pq, settings);
+#endif
     } else {
         usage();
     }

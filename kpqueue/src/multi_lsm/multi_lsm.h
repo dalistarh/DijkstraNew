@@ -37,6 +37,7 @@ public:
                 const V &val);
 
     bool delete_min(V &val);
+    bool delete_min2(V &value, const int &thread_id) {}
 
     void init_thread(const size_t) const { set_tid(); }
     constexpr static bool supports_concurrency() { return true; }

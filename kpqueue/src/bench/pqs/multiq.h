@@ -34,7 +34,7 @@ namespace kpqbench
  * "MultiQueues: Simpler, Faster, and Better Relaxed Concurrent Priority Queues".
  * C is a tuning parameter specifying the number of internal queues per thread.
  */
-template <class K, class V, int C = 4>
+template <class K, class V, int C = 1>
 class multiq
 {
 private:
@@ -80,12 +80,12 @@ private:
     } __attribute__((aligned(64)));
 
 public:
-    multiq(const size_t num_threads, const size_t num_queues);
+    multiq(const size_t num_threads);
     virtual ~multiq();
 
     void insert(const K &key, const V &value);
     bool delete_min(V &value);
-    bool delete_min2(V &value/*, const int &thread_id*/);
+    bool delete_min2(V &value, const int &thread_id);
     void clear();
 
     void print() const;
@@ -94,13 +94,12 @@ public:
     constexpr static bool supports_concurrency() { return true; }
 
 private:
-    size_t num_queues() const { return m_num_queues; }
+    size_t num_queues() const { return m_num_threads * C; }
     bool lock(const size_t ix);
     void unlock(const size_t ix);
 
 private:
     const size_t m_num_threads;
-    const size_t m_num_queues;
 
     local_queue *m_queues;
     local_lock *m_locks;

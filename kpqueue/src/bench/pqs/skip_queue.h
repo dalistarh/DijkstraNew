@@ -31,6 +31,7 @@ class skip_queue
 public:
     void insert(const T &key, const T &value);
     bool delete_min(T &v);
+    bool delete_min2(T &value, const int &thread_id) {}
 
     void clear();
 

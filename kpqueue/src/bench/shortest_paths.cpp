@@ -31,7 +31,7 @@
 #include "util.h"
 
 constexpr int DEFAULT_NNODES     = 8192;
-constexpr int DEFAULT_NTHREADS   = 1;
+constexpr int DEFAULT_NTHREADS   = 32;
 constexpr double DEFAULT_EDGE_P  = 0.5;
 constexpr int DEFAULT_RELAXATION = 256;
 constexpr int DEFAULT_SEED       = 0;
@@ -46,7 +46,7 @@ static hwloc_wrapper hwloc; /**< Thread pinning functionality. */
 static std::atomic<bool> start_barrier(false);
 static std::atomic<int> num_tasks(0);
 
-int beta;
+size_t beta = 1;
 
 struct settings {
     int num_nodes;
@@ -188,21 +188,19 @@ bench_thread(T *pq,
     while (!start_barrier.load(std::memory_order_relaxed)) {
         /* Wait. */
     }
-    int betacount = 0;
+    
+    size_t counter = 0;
+
     while (num_tasks.load(std::memory_order_relaxed) > 0) {
         task_t *task;
-        betacount++;
-        if (betacount % beta == 0)
-        {
-            if (!pq->delete_min(task)) {
-                continue;
-            }   
-        }
-        else
-        {
-            if (!pq->delete_min2(task)) {
-                continue;
-            }           
+
+        counter++;
+        bool ww;
+        if (counter % beta != 0) ww = pq->delete_min2(task, thread_id); 
+        else  ww = pq->delete_min(task);
+        if (!ww) 
+        {        
+            continue;
         }
 
         const vertex_t *v = task->v;
@@ -294,8 +292,7 @@ main(int argc,
     struct settings s = { DEFAULT_NNODES, DEFAULT_NTHREADS, DEFAULT_EDGE_P, DEFAULT_SEED, ""};
 
     int opt;
-    int qq;
-    while ((opt = getopt(argc, argv, "m:n:p:s:b:q:")) != -1) {
+    while ((opt = getopt(argc, argv, "m:n:p:s:b:")) != -1) {
         switch (opt) {
         case 'm':
             errno = 0;
@@ -332,13 +329,7 @@ main(int argc,
                 usage();
             }
             break;
-        case 'q':
-            errno = 0;
-            qq = strtol(optarg, NULL, 0);
-            if (errno != 0) {
-                usage();
-            }
-            break;
+                
         default:
             usage();
         }
@@ -361,10 +352,18 @@ main(int argc,
     }
 
     s.type = argv[optind];
-    s.type = PQ_MULTIQ;
 
-    if (s.type == PQ_MULTIQ) {
-        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads, qq);
+    if (s.type == PQ_DLSM) {
+        kpq::dist_lsm<uint32_t, task_t *, DEFAULT_RELAXATION> pq;
+        ret = bench(&pq, s);
+    } else if (s.type == PQ_KLSM) {
+        kpq::k_lsm<uint32_t, task_t *, DEFAULT_RELAXATION> pq;
+        ret = bench(&pq, s);
+    } else if (s.type == PQ_GLOBALLOCK) {
+        kpqbench::GlobalLock<uint32_t, task_t *> pq;
+        ret = bench(&pq, s);
+    } else if (s.type == PQ_MULTIQ) {
+        kpqbench::multiq<uint32_t, task_t *> pq(s.num_threads);
         ret = bench(&pq, s);
     } else {
         usage();

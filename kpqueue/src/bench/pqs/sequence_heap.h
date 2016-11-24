@@ -36,6 +36,7 @@ public:
 
     void insert(const T &k, const T &v);
     bool delete_min(T &v);
+    bool delete_min2(T &value, const int &thread_id) {}
     
     void clear();
 

@@ -19,6 +19,7 @@ public:
 
     void insert(const uint32_t &key, const uint32_t &value);
     bool delete_min(uint32_t &v);
+    bool delete_min2(uint32_t &value, const int &thread_id) {}
 
     void init_thread(const size_t) const { }
     constexpr static bool supports_concurrency() { return true; }
