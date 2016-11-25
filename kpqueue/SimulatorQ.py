@@ -36,10 +36,10 @@ def Run(beta):
 		return tmean / NREPEATS, tmax / NREPEATS, tdev / NREPEATS
 		
 
-f = open('Quality.txt', 'w')
+f = open('Quality15.txt', 'w')
 
 
-for beta in range(1, 16):		
+for beta in range(15, 16):		
         mn, mx, dv  = Run(beta)
         f.write("beta="+str(beta) + " mean= "+str(mn)+" max= "+str(mx)+" dev= "+str(dv)+"\n")
 
