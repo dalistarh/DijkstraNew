@@ -34,7 +34,7 @@ def Run(beta):
 f = open('RunTimesDijkstra.txt', 'w')
 
 
-for beta in range(1, 16):		
+for beta in range(0, 21):		
         parameters = Run(beta)
         f.write("beta="+str(beta) + " DijkstraRunTime= "+str(parameters)+"\n")
 

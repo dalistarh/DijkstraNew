@@ -35,7 +35,7 @@ def Run(beta):
 f = open('RunTimes.txt', 'w')
 
 
-for beta in range(1, 16):		
+for beta in range(0, 21):		
         parameters = Run(beta)
         f.write("beta="+str(beta) + " throughout= "+str(parameters)+"\n")
 

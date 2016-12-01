@@ -23,6 +23,8 @@
 #include <random>
 #include <thread>
 #include <unistd.h>
+#include <iostream>
+#include <fstream>
 
 #include "pqs/globallock.h"
 #include "pqs/multiq.h"
@@ -30,7 +32,8 @@
 #include "k_lsm/k_lsm.h"
 #include "util.h"
 
-constexpr int DEFAULT_NNODES     = 8192;
+const size_t NEDGES = 88234;
+constexpr int DEFAULT_NNODES     = 4039;
 constexpr int DEFAULT_NTHREADS   = 32;
 constexpr double DEFAULT_EDGE_P  = 0.5;
 constexpr int DEFAULT_RELAXATION = 256;
@@ -46,6 +49,7 @@ static hwloc_wrapper hwloc; /**< Thread pinning functionality. */
 static std::atomic<bool> start_barrier(false);
 static std::atomic<int> num_tasks(0);
 
+size_t betabase = 20;
 size_t beta = 1;
 
 struct settings {
@@ -112,21 +116,29 @@ generate_graph(const size_t n,
 
     std::mt19937 rng;
     rng.seed(seed);
-    std::uniform_real_distribution<float> rnd_f(0.0, 1.0);
+
     std::uniform_int_distribution<size_t> rnd_st(1, std::numeric_limits<int>::max());
 
     std::vector<edge_t> *edges = new std::vector<edge_t>[n];
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = i + 1; j < n; ++j) {
-            if (rnd_f(rng) < p) {
+
+    std::ifstream myfile("facebook_combined.txt");          
+    for (size_t k = 0; k < NEDGES; k++)
+    {             
+            //is using i, j edge            
+            size_t i, j;
+            myfile >> i >> j;
+         
                 edge_t e;
                 e.target = j;
                 e.weight = rnd_st(rng);
                 edges[i].push_back(e);
                 e.target = i;
                 edges[j].push_back(e);
-            }
-        }
+    }
+    myfile.close();
+
+    for (size_t i = 0; i < n; i++)
+    {
         data[i].num_edges = edges[i].size();
         if (edges[i].size() > 0) {
             data[i].edges = new edge_t[edges[i].size()];
@@ -189,15 +201,23 @@ bench_thread(T *pq,
         /* Wait. */
     }
     
-    size_t counter = 0;
+    std::mt19937 rng;
+    rng.seed(thread_id);
+    std::uniform_int_distribution<size_t> rnd_i(1, betabase);    
 
     while (num_tasks.load(std::memory_order_relaxed) > 0) {
         task_t *task;
 
-        counter++;
         bool ww;
-        if (counter % beta != 0) ww = pq->delete_min2(task, thread_id); 
-        else  ww = pq->delete_min(task);
+        
+        if (beta == 0) ww = pq->delete_min(task); else
+        if (beta == betabase) ww = pq->delete_min2(task, thread_id);
+        else            
+        {
+            if(rnd_i(rng) <= beta) ww = pq->delete_min2(task, thread_id);
+            else ww = pq->delete_min(task); 
+        }
+       
         if (!ww) 
         {        
             continue;

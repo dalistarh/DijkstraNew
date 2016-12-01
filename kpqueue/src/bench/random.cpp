@@ -70,6 +70,7 @@
 #define VAL_TYPE      uint32_t
 #endif
 
+size_t betabase = 20;
 size_t beta = 1;
 
 /**
@@ -361,9 +362,14 @@ bench_thread(PriorityQueue *pq,
 #ifdef HAVE_VALGRIND
     CALLGRIND_ZERO_STATS;
 #endif
-    size_t counter = 0;
+   
     KEY_TYPE k;
     VAL_TYPE v;
+    
+    std::mt19937 rng;
+    rng.seed(thread_id);
+    std::uniform_int_distribution<size_t> rnd_i(1, betabase);
+         
     while (!end_barrier.load(std::memory_order_relaxed)) {
         if (workload.insert()) {
             k = keygen.next();
@@ -376,10 +382,17 @@ bench_thread(PriorityQueue *pq,
 #endif
             kpq::COUNTERS.inserts++;
         } else {
-            counter++;
-            bool ww;            
-            if (counter % beta != 0) ww = pq->delete_min2(v, thread_id); else ww = pq->delete_min(v);
             
+            bool ww;            
+            
+            if (beta == 0) ww = pq->delete_min(v); else
+            if (beta == betabase) ww = pq->delete_min2(v, thread_id);
+            else
+            {
+                if(rnd_i(rng) <= beta) ww = pq->delete_min2(v, thread_id);
+                else ww = pq->delete_min(v); 
+            }
+
             if (ww) {
 #ifdef ENABLE_QUALITY
                 deletions->emplace_back(packed_item_id { v.thread_id
